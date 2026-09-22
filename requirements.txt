@@ -1,0 +1,10 @@
+dash
+plotly
+pandas
+numpy
+anthropic
+fredapi
+requests
+beautifulsoup4
+python-dotenv
+gunicorn
