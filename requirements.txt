@@ -2,7 +2,7 @@ dash
 plotly
 pandas
 numpy
-anthropic
+anthropic<1.0.0
 fredapi
 requests
 beautifulsoup4
