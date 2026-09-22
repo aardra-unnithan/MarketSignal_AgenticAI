@@ -22,11 +22,13 @@ load_dotenv()
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 FRED_API_KEY      = os.environ.get("FRED_API_KEY")
 GOOGLE_API_KEY    = os.environ.get("GOOGLE_API_KEY")
+CENSUS_API_KEY    = os.environ.get("CENSUS_API_KEY")
 
 missing = [name for name, val in [
     ("ANTHROPIC_API_KEY", ANTHROPIC_API_KEY),
     ("FRED_API_KEY", FRED_API_KEY),
     ("GOOGLE_API_KEY", GOOGLE_API_KEY),
+    ("CENSUS_API_KEY", CENSUS_API_KEY),
 ] if not val]
 if missing:
     raise RuntimeError(
@@ -129,7 +131,6 @@ def analyze_fomc_tone(fomc_text):
     r = client.messages.create(
         model=CLAUDE_MODEL,
         max_tokens=800,
-        temperature=0.1,
         system="Monetary policy expert. JSON only.",
         messages=[{"role": "user", "content": prompt}],
     )
@@ -195,7 +196,7 @@ def get_state_from_zip(zip_code):
     """Get state abbreviation from ZIP code using Census geocoding."""
     try:
         url = "https://api.census.gov/data/2023/acs/acs5"
-        params = {"get": "B01003_001E", "for": f"zip code tabulation area:{zip_code}"}
+        params = {"get": "B01003_001E", "for": f"zip code tabulation area:{zip_code}", "key": CENSUS_API_KEY}
         r = requests.get(url, params=params)
         # Census doesn't return state directly but we can get it from zip lookup
         # Use a simple ZIP prefix approach as backup
@@ -530,6 +531,7 @@ def fetch_local_data(zip_code):
             "B01001_012E","B01001_036E",  # 30-34
         ]),
         "for": base,
+        "key": CENSUS_API_KEY,
     }
 
     # ── Call 2: Age 35+ + Education ───────────────────────────────────────
@@ -553,6 +555,7 @@ def fetch_local_data(zip_code):
             "B15003_001E",               # total 25+ for education base
         ]),
         "for": base,
+        "key": CENSUS_API_KEY,
     }
 
     try:
@@ -685,7 +688,6 @@ def normalize_business_type(business_type):
     r = client.messages.create(
         model=CLAUDE_MODEL,
         max_tokens=20,
-        temperature=0,
         messages=[{"role": "user", "content": prompt}],
     )
     text = "".join(block.text for block in r.content if block.type == "text")
@@ -1366,7 +1368,6 @@ Return ONLY this JSON:
     r = client.messages.create(
         model=CLAUDE_MODEL,
         max_tokens=3000,
-        temperature=0.2,
         system="Senior McKinsey economic strategist. Always cite specific numbers. Return ONLY valid JSON. No markdown. No extra text.",
         messages=[{"role": "user", "content": prompt}],
     )
@@ -3053,7 +3054,6 @@ def generate_comparative_insight(current, previous, all_runs):
         r = client.messages.create(
             model=CLAUDE_MODEL,
             max_tokens=130,
-            temperature=0.2,
             system="Market intelligence agent. 2-sentence insights only.",
             messages=[{"role": "user", "content": prompt}],
         )
