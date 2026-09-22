@@ -64,7 +64,7 @@ An 11-slider simulator (8 national indicators, 3 local) lets you ask "what if" q
 **1. Clone and enter the project**
 ```bash
 git clone <this-repo-url>
-cd MarketSignal
+cd MarketSignal_AgenticAI
 ```
 
 **2. Install dependencies**
